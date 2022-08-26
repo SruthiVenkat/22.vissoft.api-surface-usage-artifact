@@ -1,0 +1,155 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{url}
+%\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{todo}
+\usepackage{tikz}
+\usepackage{subfig}
+\usepackage{listings}
+\usepackage[breaklinks]{hyperref}
+\usepackage{microtype}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\tikzstyle{block} = [rectangle, draw, 
+    text width=5em, text centered, rounded corners, minimum height=2em]
+\tikzstyle{oval} = [ellipse, draw, 
+    text width=5em, text centered, rounded corners, minimum height=2em]
+\tikzstyle{bt} = [rectangle, draw, 
+    text width=1em, text centered, rounded corners, minimum height=2em]
+\usetikzlibrary{calc}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{positioning}
+\usetikzlibrary{fit}
+\usetikzlibrary{shapes.geometric}
+
+\colorlet{punct}{red!60!black}
+\definecolor{background}{HTML}{EEEEEE}
+\definecolor{delim}{RGB}{20,105,176}
+\colorlet{numb}{magenta!60!black}
+
+
+\lstdefinelanguage{json}{
+    basicstyle=\normalfont\ttfamily,
+    numbers=left,
+    numberstyle=\scriptsize,
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=lines,
+    backgroundcolor=\color{background},
+    literate=
+     *{0}{{{\color{numb}0}}}{1}
+      {1}{{{\color{numb}1}}}{1}
+      {2}{{{\color{numb}2}}}{1}
+      {3}{{{\color{numb}3}}}{1}
+      {4}{{{\color{numb}4}}}{1}
+      {5}{{{\color{numb}5}}}{1}
+      {6}{{{\color{numb}6}}}{1}
+      {7}{{{\color{numb}7}}}{1}
+      {8}{{{\color{numb}8}}}{1}
+      {9}{{{\color{numb}9}}}{1}
+      {:}{{{\color{punct}{:}}}}{1}
+      {,}{{{\color{punct}{,}}}}{1}
+      {\{}{{{\color{delim}{\{}}}}{1}
+      {\}}{{{\color{delim}{\}}}}}{1}
+      {[}{{{\color{delim}{[}}}}{1}
+      {]}{{{\color{delim}{]}}}}{1},
+}
+
+\begin{document}
+
+\title{VizAPI: Visualizing Interactions between Java Libraries and Clients --- Artifact}
+
+%\author{\IEEEauthorblockN{1\textsuperscript{st} Sruthi Venkatanarayanan}
+%\IEEEauthorblockA{\textit{University of Waterloo} \\
+%Waterloo, ON, CANADA \\
+%s42venkat@uwaterloo.ca}
+%\and
+%\IEEEauthorblockN{2\textsuperscript{nd} Jens Dietrich
+%\IEEEauthorblockA{\textit{Victoria University of Wellington}\\
+%Wellington, NZ \\
+%jens.dietrich@vuw.ac.nz}
+%\and
+%\IEEEauthorblockN{3\textsuperscript{rd} Craig Anslow}
+%\IEEEauthorblockA{\textit{Victoria University of Wellington} \\
+%Wellington, NZ\\
+%craig.anslow@vuw.ac.nz}
+%\and
+%\IEEEauthorblockN{4\textsuperscript{th} Patrick Lam}
+%\IEEEauthorblockA{\textit{University of Waterloo}\\
+%Waterloo, ON, CANADA\\
+%patrick.lam@uwaterloo.ca}
+%}
+%}
+
+\author{\IEEEauthorblockN{Sruthi Venkatanarayanan\IEEEauthorrefmark{1}, Jens Dietrich\IEEEauthorrefmark{2}, Craig Anslow\IEEEauthorrefmark{2}, and Patrick Lam\IEEEauthorrefmark{1}}
+\IEEEauthorblockA{
+\begin{tabular}{cc}
+\IEEEauthorrefmark{1}University of Waterloo & \IEEEauthorrefmark{2}Victoria University of Wellington\\
+Waterloo, ON, Canada & Wellington, New Zealand \\
+{\{s42venkat,patrick.lam\}@uwaterloo.ca}  & {\{jens.dietrich,craig.anslow\}@vuw.ac.nz}}
+\end{tabular}
+}
+\maketitle
+
+\begin{abstract}
+The VizAPI tool shows visualizations that include both static and dynamic interactions between clients, the libraries they use, and  those libraries’ transitive dependencies (all written in Java). One application of VizAPI is by client developers, to answer a query about upstream code: will their code be affected by breaking changes in library APIs? Or, library developers can use VizAPI to find out about downstream code: which APIs in their source code are commonly used by clients? This document describes the VizAPI artifact.
+\end{abstract}
+
+\begin{IEEEkeywords}
+static program analysis,
+dynamic program analysis,
+API usage,
+software evolution,
+software maintenance
+\end{IEEEkeywords}
+
+
+This document explains how to obtain and install the artifact for the VizAPI tool. VizAPI uses a modified version of Python's d3graph library to generate a d3js visualization of library API usage by clients. Our artifact package can be found in the form of a Github repository at \href{https://github.com/SruthiVenkat/api-visualization-tool}. It has also been archived on Zenodo, at \href{https://zenodo.org/record/7023911}. To get started, the Github repository needs to be cloned and then the \texttt{apis-data} directory from \href{https://doi.org/10.5281/zenodo.7023872} needs to be copied into the root directory. This directory contains our existing data for 101 benchmarks. If the input to VizAPI exists in our data, then the visualizations are directly generated from the data files. If not, the intrumentation is first run and then visualizations are generated.
+
+We next describe the input to VizAPI. The tool expects a JSON file called \texttt{input.json} as the input. The JSON file must contain an array of objects where each object describes a project and can be in one of the following formats:
+
+\begin{enumerate}
+\item The first format is shown in Listing~\ref{listing:input-format-1}. It is to be used when data for the project already exists in \texttt{apis-data}. In this case, the artifact ID of the project and the type of the project (whether it is a client or library) needs to be specified.
+\lstinputlisting[language=json,label=listing:input-format-1]{input-format-1.json}
+\item The first second is shown in Listing~\ref{listing:input-format-1}. It is to be used when data for the project does not exist in \texttt{apis-data}. In this case, the artifact ID of the project and the type of the project (whether it is a client or library) needs to be specified. Since the data does not exist, VizAPI needs to run instrumentation and hence the URL and commit ID of the project are also expected.
+\lstinputlisting[language=json,label=listing:input-format-2]{input-format-2.json}
+\end{enumerate}
+
+We now describe how to run VizAPI, both without and with Docker.
+\begin{sloppypar}
+\section{Running VizAPI without Docker}
+\begin{enumerate}
+\item Install the following Python packages: pandas, jupyterlab\_server, networkx, colourmap, python-louvain, sklearn, ismember, d3graph, PyGithub
+\item Change all paths starting with \texttt{/api-visualization-tool} to point to the location of your repository in the following files: \texttt{api-viz.py}, \texttt{config/config.properties}
+\item Run \texttt{api-viz.py}
+\end{enumerate}
+
+\section{Running VizAPI with Docker}
+\begin{enumerate}
+\item Run \texttt{docker build -t img_name .} from within the Github repository.
+\item Run \texttt{docker run -v /path/to/this/repo/api-visualization-tool:/api-visualization-tool img_name} The path before the : in the command is your local path to the repo. The path after the : in the command is the path in the container, which is \texttt{/api-visualization-tool}
+\end{enumerate}
+\end{sloppypar}
+In both cases, i.e., with and without Docker, the final graph is generated with the name \texttt{api-usage.html}
+
+The following is an example input.json needed to reproduce the Graph 1 at \href{https://sruthivenkat.github.io/VizAPI-graph/}:
+\lstinputlisting[language=json,label=listing:input-example]{input-example.json}
+
+Some points to note are:
+\begin{enumerate}
+\item The size of the Docker image is around 4.1 GB.
+\item Graphs with multiple data points takes time to be generated.
+\item Future warnings might be thrown when run on Docker.
+\end{enumerate}
+
+\end{document}
