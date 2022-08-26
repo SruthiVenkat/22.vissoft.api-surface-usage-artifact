@@ -116,43 +116,50 @@ software maintenance
 \end{IEEEkeywords}
 
 
-This document explains how to obtain and install the artifact for the VizAPI tool. VizAPI uses a modified version of Python's d3graph library to generate a d3js visualization of library API usage by clients. Our artifact package can be found in the form of a Github repository at \href{https://github.com/SruthiVenkat/api-visualization-tool}. It has also been archived on Zenodo, at \href{https://zenodo.org/record/7023911}. To get started, the Github repository needs to be cloned and then the \texttt{apis-data} directory from \href{https://doi.org/10.5281/zenodo.7023872} needs to be copied into the root directory. This directory contains our existing data for 101 benchmarks. If the input to VizAPI exists in our data, then the visualizations are directly generated from the data files. If not, the intrumentation is first run and then visualizations are generated.
+This document explains our artifact for the VizAPI tool, including how to obtain, install, and use the artifact. VizAPI generates a d3js visualization of library API usage by clients, using a modified version of Python's d3graph library. Our working Github repository for VizAPI is at \href{https://github.com/SruthiVenkat/api-visualization-tool}{https://github.com/SruthiVenkat/api-visualization-tool}. We have also archived the artifact at \href{https://doi.org/10.5281/zenodo.7023911}{https://doi.org/10.5281/zenodo.7023911} and our dataset at \href{https://doi.org/10.5281/zenodo.7023872}{https://doi.org/10.5281/zenodo.7023872}.
 
-We next describe the input to VizAPI. The tool expects a JSON file called \texttt{input.json} as the input. The JSON file must contain an array of objects where each object describes a project and can be in one of the following formats:
+\section{Getting Started}
+
+To acquire the repository, clone the repository (or download the archived version) and then copy the \texttt{apis-data} directory from the dataset into the root directory of the artifact. The API data directory contains our data for 101 benchmarks. If the input to VizAPI exists in \texttt{apis-data}, then VizAPI directly generates visualizations from the data files. If not, our package first runs the instrumentation to create the data files, and then generates visualizations from them.
+
+We next describe the input to VizAPI. To run on a benchmark, the tool expects a JSON file called \texttt{input.json} as its input. The JSON file must contain an array of objects where each object describes a project; it can be in one of the following formats:
 
 \begin{enumerate}
-\item The first format is shown in Listing~\ref{listing:input-format-1}. It is to be used when data for the project already exists in \texttt{apis-data}. In this case, the artifact ID of the project and the type of the project (whether it is a client or library) needs to be specified.
+\item The first format, shown immediately below, is to be used when data for the project already exists in \texttt{apis-data}. In this case, the artifact ID of the project (which can be arbitrarily chosen by the user) and the type of the project (whether it is a client or library) need to be specified.
 \lstinputlisting[language=json,label=listing:input-format-1]{input-format-1.json}
-\item The first second is shown in Listing~\ref{listing:input-format-1}. It is to be used when data for the project does not exist in \texttt{apis-data}. In this case, the artifact ID of the project and the type of the project (whether it is a client or library) needs to be specified. Since the data does not exist, VizAPI needs to run instrumentation and hence the URL and commit ID of the project are also expected.
+\item The second is to be used when data for the project does not exist in \texttt{apis-data}. Again, the artifact ID of the project and the type of the project (whether it is a client or library) still need to be specified. Since the data do not exist, VizAPI also needs to capture instrumentation data, and hence VizAPI expects the URL and commit ID of the project. VizAPI expects the project to be in Maven format and can automatically execute the project's tests.
 \lstinputlisting[language=json,label=listing:input-format-2]{input-format-2.json}
 \end{enumerate}
 
-We now describe how to run VizAPI, both without and with Docker.
+\section{Running VizAPI with Docker}
+We recommend using Docker to run VizAPI; we have tested the configuration and believe that it should be portable.
+\begin{enumerate}
+\item Run \texttt{docker build -t img\_name .} 
+from the directory where you have cloned the Github repository.
+\item Run \texttt{docker run \\\hspace*{1em} -v /path/to/this/repo/api-\\\hspace*{1em} visualization-tool:/api-\\ \hspace*{1em} visualization-tool img\_name} 
+
+The path before the : in the command is your local path to the repo. The path after the : in the command is the path in the container, which is \texttt{/api-visualization-tool}.
+\end{enumerate}
 
 \section{Running VizAPI without Docker}
+It is also possible to run VizAPI outside of Docker.
 \begin{enumerate}
-\item Install the following Python packages: pandas, jupyterlab\_server, networkx, colourmap, python\\-louvain, sklearn, ismember, d3graph, PyGithub
-\item Change all paths starting with \texttt{/api\\-visualization-tool} to point to the location of your repository in the following files: \texttt{api\\-viz.py}, \texttt{config/config.properties}
-\item Run \texttt{api-viz.py}
+\item Install the following Python packages: pandas, jupyterlab\_server, networkx, colourmap, python-louvain, sklearn, ismember, d3graph, PyGithub.
+\item Change paths starting with \texttt{/api-visualization-\\tool} to point to the location of your repository in the following files: \texttt{api-viz.py}, \texttt{config/config.properties}.
+\item Run \texttt{api-viz.py}.
 \end{enumerate}
 
-\section{Running VizAPI with Docker}
-\begin{enumerate}
-\item Run \texttt{docker build \\-t img\_name .} 
-from within the Github repository.
-\item Run \texttt{docker run \\-v /path/to/this/repo/api\\-visualization-tool:/api\\-visualization\-tool img\_name} The path before the : in the command is your local path to the repo. The path after the : in the command is the path in the container, which is \texttt{/api-visualization-tool}
-\end{enumerate}
+In both cases, i.e., with and without Docker, the final graph is generated with the name \texttt{api-usage.html}, in the VizAPI 
+main directory.
 
-In both cases, i.e., with and without Docker, the final graph is generated with the name \texttt{api-usage.html}
-
-The following is an example input.json needed to reproduce the Graph 1 at \href{https://sruthivenkat.github.io/VizAPI-graph/}:
+The following is an example input.json needed to reproduce the Graph 1 at \href{https://sruthivenkat.github.io/VizAPI-graph/}{https://sruthivenkat.github.io/VizAPI-graph/}:
 \lstinputlisting[language=json,label=listing:input-example]{input-example.json}
 
 Some points to note are:
 \begin{enumerate}
 \item The size of the Docker image is around 4.1 GB.
-\item Graphs with multiple data points takes time to be generated.
-\item Future warnings might be thrown when run on Docker.
+\item The more data points, the longer the graphs take to generate.
+\item When running VizAPI to generate graphs, you may see many Python Future warnings. They can be ignored.
 \end{enumerate}
 
 \end{document}
