@@ -136,8 +136,8 @@ We now describe how to run VizAPI, both without and with Docker.
 
 \section{Running VizAPI with Docker}
 \begin{enumerate}
-\item Run \texttt{docker build -t img_name .} from within the Github repository.
-\item Run \texttt{docker run -v /path/to/this/repo/api-visualization-tool:/api-visualization-tool img_name} The path before the : in the command is your local path to the repo. The path after the : in the command is the path in the container, which is \texttt{/api-visualization-tool}
+\item Run \texttt{docker build -t img\_name .} from within the Github repository.
+\item Run \texttt{docker run -v /path/to/this/repo/api-visualization-tool:/api-visualization-tool img\_name} The path before the : in the command is your local path to the repo. The path after the : in the command is the path in the container, which is \texttt{/api-visualization-tool}
 \end{enumerate}
 \end{sloppypar}
 In both cases, i.e., with and without Docker, the final graph is generated with the name \texttt{api-usage.html}
